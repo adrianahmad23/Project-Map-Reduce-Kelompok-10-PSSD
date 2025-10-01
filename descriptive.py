@@ -21,3 +21,14 @@ print(f"Total kemunculan kata   : {total_words}")
 print(f"Jumlah kata unik        : {unique_words}")
 print(f"Rata-rata frekuensi     : {mean_freq:.2f}")
 print(f"Kata paling sering      : {max_word['word']} ({max_word['count']})")
+
+#simpan hasil analisis ke CSV
+summary = pd.DataFrame({
+    "Total Words": [total_words],
+    "Unique Words": [unique_words],
+    "Mean Frequency": [mean_freq],
+    "Most Frequent Word": [max_word['word']],
+    "Max Count": [max_word['count']]
+})
+
+summary.to_csv("descriptive_output.csv", index=False)
