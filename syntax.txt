@@ -1,0 +1,40 @@
+# Menjalankan script preprocessing untuk membersihkan data sebelum diunggah ke HDFS
+python preprocessing.py
+
+# Menyalakan semua service Hadoop (NameNode, DataNode, ResourceManager, NodeManager)
+start-all.cmd
+
+# Membuat direktori baru di HDFS dengan path /user/hadoop/wordcount sebagai tempat penyimpanan input dan output.
+hdfs dfs -mkdir -p /user/hadoop/wordcount
+
+# Mengunggah file input hasil preprocessing dari sistem lokal ke direktori HDFS.
+hdfs dfs -put C:/hadoop/bin/wordcount/pageviews-20250901-000000-clean.txt /user/hadoop/wordcount/
+
+# Menjalankan program MapReduce bawaan Hadoop (wordcount) dengan input dari file HDFS dan menyimpan hasil di direktori output HDFS.
+hadoop jar C:\\hadoop\\share\\hadoop\\mapreduce\\hadoop-mapreduce-examples-3.2.4.jar wordcount /user/hadoop/wordcount/pageviews-20250901-000000-clean.txt /user/hadoop/wordcount/output
+
+# Mengunduh hasil output reducer dari HDFS ke sistem lokal agar bisa dianalisis lebih lanjut.
+hdfs dfs -get /user/hadoop/wordcount/output/part-r-00000 C:/hadoop/bin/wordcount/part-r-00000.txt
+
+
+# Berpindah direktori ke lokasi file hasil reducer dan script analisis.
+cd C:\\hadoop\\bin\\wordcount
+
+# Membaca file output reducer dan menampilkan 20 kata dengan frekuensi tertinggi menggunakan script topn.py.
+type part-r-00000.txt | python topn.py
+
+# Membaca file output reducer dan melakukan analisis deskriptif sederhana (jumlah kata, kata unik, rata-rata, kata paling sering).
+type part-r-00000.txt | python descriptive.py
+
+
+
+# UNTUK TRIAL & ERROR
+
+# Menghapus direktori /user/hadoop/wordcount di HDFS untuk membersihkan sisa file input dan output (Ketika ingin mencoba ulang proses)
+hdfs dfs -rm -r -f /user/hadoop/wordcount
+
+# Menonaktifkan mode safemode HDFS agar cluster dapat beroperasi normal kembali setelah job selesai.
+hdfs dfsadmin -safemode leave
+
+
+
